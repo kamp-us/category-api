@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package kampus.categoryapi;
+option go_package = "/rpc/category-api";
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+service CategoryAPI {
+  rpc GetCategory(GetCategoryRequest) returns (Category);
+  rpc CreateCategory(CreateCategoryRequest) returns (Category);
+  rpc UpdateCategory(UpdateCategoryRequest) returns (google.protobuf.Empty);
+  rpc DeleteCategory(DeleteCategoryRequest) returns (google.protobuf.Empty);
+}
+
+// Category Start
+message GetCategoryRequest {
+  string ID = 1;
+}
+
+message CreateCategoryRequest {
+  string user_id = 1;
+  string name = 2;
+  string description = 3;
+}
+
+message UpdateCategoryRequest {
+  string ID = 1;
+  google.protobuf.StringValue name = 2;
+  google.protobuf.StringValue description = 3;
+}
+
+message DeleteCategoryRequest {
+  string ID = 1;
+}
+
+message Category {
+  string ID = 1;
+  string name = 2;
+  string description = 3;
+  string slug = 4;
+}
+// Category End
