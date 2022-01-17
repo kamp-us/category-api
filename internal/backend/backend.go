@@ -11,6 +11,7 @@ type Backender interface {
 	CreateCategory(ctx context.Context, name string, description string) (*models.Category, error)
 	UpdateCategory(ctx context.Context, id string, name *string, description *string) error
 	DeleteCategory(ctx context.Context, id string) error
+	GetBatchCategories(ctx context.Context, ids []string) ([]*models.Category, error)
 }
 
 type PostgreSQLBackend struct {

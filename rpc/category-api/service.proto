@@ -11,9 +11,9 @@ service CategoryAPI {
   rpc CreateCategory(CreateCategoryRequest) returns (Category);
   rpc UpdateCategory(UpdateCategoryRequest) returns (google.protobuf.Empty);
   rpc DeleteCategory(DeleteCategoryRequest) returns (google.protobuf.Empty);
+  rpc GetBatchCategories(GetBatchCategoriesRequest) returns (GetBatchCategoriesResponse);
 }
 
-// Category Start
 message GetCategoryRequest {
   string ID = 1;
 }
@@ -34,10 +34,17 @@ message DeleteCategoryRequest {
   string ID = 1;
 }
 
+message GetBatchCategoriesRequest {
+  repeated string ids = 1;
+}
+
+message GetBatchCategoriesResponse {
+  repeated Category categories = 1;
+}
+
 message Category {
   string ID = 1;
   string name = 2;
   string description = 3;
   string slug = 4;
 }
-// Category End
