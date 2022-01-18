@@ -21,7 +21,6 @@ func NewPostgreSQLConnection(c PostgreSQLConfig) (*gorm.DB, error) {
 		return nil, err
 	}
 	return db, nil
-	//return gorm.Open(postgres.Open(c.ToConnectionString()), &gorm.Config{}), nil
 }
 
 func (c PostgreSQLConfig) ToConnectionString() string {

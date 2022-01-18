@@ -42,6 +42,8 @@ type CategoryAPI interface {
 	UpdateCategory(context.Context, *UpdateCategoryRequest) (*google_protobuf1.Empty, error)
 
 	DeleteCategory(context.Context, *DeleteCategoryRequest) (*google_protobuf1.Empty, error)
+
+	GetBatchCategories(context.Context, *GetBatchCategoriesRequest) (*GetBatchCategoriesResponse, error)
 }
 
 // ===========================
@@ -50,7 +52,7 @@ type CategoryAPI interface {
 
 type categoryAPIProtobufClient struct {
 	client      HTTPClient
-	urls        [4]string
+	urls        [5]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -78,11 +80,12 @@ func NewCategoryAPIProtobufClient(baseURL string, client HTTPClient, opts ...twi
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "kampus.categoryapi", "CategoryAPI")
-	urls := [4]string{
+	urls := [5]string{
 		serviceURL + "GetCategory",
 		serviceURL + "CreateCategory",
 		serviceURL + "UpdateCategory",
 		serviceURL + "DeleteCategory",
+		serviceURL + "GetBatchCategories",
 	}
 
 	return &categoryAPIProtobufClient{
@@ -277,13 +280,59 @@ func (c *categoryAPIProtobufClient) callDeleteCategory(ctx context.Context, in *
 	return out, nil
 }
 
+func (c *categoryAPIProtobufClient) GetBatchCategories(ctx context.Context, in *GetBatchCategoriesRequest) (*GetBatchCategoriesResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "kampus.categoryapi")
+	ctx = ctxsetters.WithServiceName(ctx, "CategoryAPI")
+	ctx = ctxsetters.WithMethodName(ctx, "GetBatchCategories")
+	caller := c.callGetBatchCategories
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *GetBatchCategoriesRequest) (*GetBatchCategoriesResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetBatchCategoriesRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetBatchCategoriesRequest) when calling interceptor")
+					}
+					return c.callGetBatchCategories(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetBatchCategoriesResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetBatchCategoriesResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *categoryAPIProtobufClient) callGetBatchCategories(ctx context.Context, in *GetBatchCategoriesRequest) (*GetBatchCategoriesResponse, error) {
+	out := new(GetBatchCategoriesResponse)
+	ctx, err := doProtobufRequest(ctx, c.client, c.opts.Hooks, c.urls[4], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
 // =======================
 // CategoryAPI JSON Client
 // =======================
 
 type categoryAPIJSONClient struct {
 	client      HTTPClient
-	urls        [4]string
+	urls        [5]string
 	interceptor twirp.Interceptor
 	opts        twirp.ClientOptions
 }
@@ -311,11 +360,12 @@ func NewCategoryAPIJSONClient(baseURL string, client HTTPClient, opts ...twirp.C
 	// Build method URLs: <baseURL>[<prefix>]/<package>.<Service>/<Method>
 	serviceURL := sanitizeBaseURL(baseURL)
 	serviceURL += baseServicePath(pathPrefix, "kampus.categoryapi", "CategoryAPI")
-	urls := [4]string{
+	urls := [5]string{
 		serviceURL + "GetCategory",
 		serviceURL + "CreateCategory",
 		serviceURL + "UpdateCategory",
 		serviceURL + "DeleteCategory",
+		serviceURL + "GetBatchCategories",
 	}
 
 	return &categoryAPIJSONClient{
@@ -510,6 +560,52 @@ func (c *categoryAPIJSONClient) callDeleteCategory(ctx context.Context, in *Dele
 	return out, nil
 }
 
+func (c *categoryAPIJSONClient) GetBatchCategories(ctx context.Context, in *GetBatchCategoriesRequest) (*GetBatchCategoriesResponse, error) {
+	ctx = ctxsetters.WithPackageName(ctx, "kampus.categoryapi")
+	ctx = ctxsetters.WithServiceName(ctx, "CategoryAPI")
+	ctx = ctxsetters.WithMethodName(ctx, "GetBatchCategories")
+	caller := c.callGetBatchCategories
+	if c.interceptor != nil {
+		caller = func(ctx context.Context, req *GetBatchCategoriesRequest) (*GetBatchCategoriesResponse, error) {
+			resp, err := c.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetBatchCategoriesRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetBatchCategoriesRequest) when calling interceptor")
+					}
+					return c.callGetBatchCategories(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetBatchCategoriesResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetBatchCategoriesResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+	return caller(ctx, in)
+}
+
+func (c *categoryAPIJSONClient) callGetBatchCategories(ctx context.Context, in *GetBatchCategoriesRequest) (*GetBatchCategoriesResponse, error) {
+	out := new(GetBatchCategoriesResponse)
+	ctx, err := doJSONRequest(ctx, c.client, c.opts.Hooks, c.urls[4], in, out)
+	if err != nil {
+		twerr, ok := err.(twirp.Error)
+		if !ok {
+			twerr = twirp.InternalErrorWith(err)
+		}
+		callClientError(ctx, c.opts.Hooks, twerr)
+		return nil, err
+	}
+
+	callClientResponseReceived(ctx, c.opts.Hooks)
+
+	return out, nil
+}
+
 // ==========================
 // CategoryAPI Server Handler
 // ==========================
@@ -618,6 +714,9 @@ func (s *categoryAPIServer) ServeHTTP(resp http.ResponseWriter, req *http.Reques
 		return
 	case "DeleteCategory":
 		s.serveDeleteCategory(ctx, resp, req)
+		return
+	case "GetBatchCategories":
+		s.serveGetBatchCategories(ctx, resp, req)
 		return
 	default:
 		msg := fmt.Sprintf("no handler for path %q", req.URL.Path)
@@ -1346,6 +1445,186 @@ func (s *categoryAPIServer) serveDeleteCategoryProtobuf(ctx context.Context, res
 	callResponseSent(ctx, s.hooks)
 }
 
+func (s *categoryAPIServer) serveGetBatchCategories(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	header := req.Header.Get("Content-Type")
+	i := strings.Index(header, ";")
+	if i == -1 {
+		i = len(header)
+	}
+	switch strings.TrimSpace(strings.ToLower(header[:i])) {
+	case "application/json":
+		s.serveGetBatchCategoriesJSON(ctx, resp, req)
+	case "application/protobuf":
+		s.serveGetBatchCategoriesProtobuf(ctx, resp, req)
+	default:
+		msg := fmt.Sprintf("unexpected Content-Type: %q", req.Header.Get("Content-Type"))
+		twerr := badRouteError(msg, req.Method, req.URL.Path)
+		s.writeError(ctx, resp, twerr)
+	}
+}
+
+func (s *categoryAPIServer) serveGetBatchCategoriesJSON(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetBatchCategories")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	d := json.NewDecoder(req.Body)
+	rawReqBody := json.RawMessage{}
+	if err := d.Decode(&rawReqBody); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+	reqContent := new(GetBatchCategoriesRequest)
+	unmarshaler := protojson.UnmarshalOptions{DiscardUnknown: true}
+	if err = unmarshaler.Unmarshal(rawReqBody, reqContent); err != nil {
+		s.handleRequestBodyError(ctx, resp, "the json request could not be decoded", err)
+		return
+	}
+
+	handler := s.CategoryAPI.GetBatchCategories
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *GetBatchCategoriesRequest) (*GetBatchCategoriesResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetBatchCategoriesRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetBatchCategoriesRequest) when calling interceptor")
+					}
+					return s.CategoryAPI.GetBatchCategories(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetBatchCategoriesResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetBatchCategoriesResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *GetBatchCategoriesResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetBatchCategoriesResponse and nil error while calling GetBatchCategories. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	marshaler := &protojson.MarshalOptions{UseProtoNames: !s.jsonCamelCase, EmitUnpopulated: !s.jsonSkipDefaults}
+	respBytes, err := marshaler.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal json response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/json")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
+func (s *categoryAPIServer) serveGetBatchCategoriesProtobuf(ctx context.Context, resp http.ResponseWriter, req *http.Request) {
+	var err error
+	ctx = ctxsetters.WithMethodName(ctx, "GetBatchCategories")
+	ctx, err = callRequestRouted(ctx, s.hooks)
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+
+	buf, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		s.handleRequestBodyError(ctx, resp, "failed to read request body", err)
+		return
+	}
+	reqContent := new(GetBatchCategoriesRequest)
+	if err = proto.Unmarshal(buf, reqContent); err != nil {
+		s.writeError(ctx, resp, malformedRequestError("the protobuf request could not be decoded"))
+		return
+	}
+
+	handler := s.CategoryAPI.GetBatchCategories
+	if s.interceptor != nil {
+		handler = func(ctx context.Context, req *GetBatchCategoriesRequest) (*GetBatchCategoriesResponse, error) {
+			resp, err := s.interceptor(
+				func(ctx context.Context, req interface{}) (interface{}, error) {
+					typedReq, ok := req.(*GetBatchCategoriesRequest)
+					if !ok {
+						return nil, twirp.InternalError("failed type assertion req.(*GetBatchCategoriesRequest) when calling interceptor")
+					}
+					return s.CategoryAPI.GetBatchCategories(ctx, typedReq)
+				},
+			)(ctx, req)
+			if resp != nil {
+				typedResp, ok := resp.(*GetBatchCategoriesResponse)
+				if !ok {
+					return nil, twirp.InternalError("failed type assertion resp.(*GetBatchCategoriesResponse) when calling interceptor")
+				}
+				return typedResp, err
+			}
+			return nil, err
+		}
+	}
+
+	// Call service method
+	var respContent *GetBatchCategoriesResponse
+	func() {
+		defer ensurePanicResponses(ctx, resp, s.hooks)
+		respContent, err = handler(ctx, reqContent)
+	}()
+
+	if err != nil {
+		s.writeError(ctx, resp, err)
+		return
+	}
+	if respContent == nil {
+		s.writeError(ctx, resp, twirp.InternalError("received a nil *GetBatchCategoriesResponse and nil error while calling GetBatchCategories. nil responses are not supported"))
+		return
+	}
+
+	ctx = callResponsePrepared(ctx, s.hooks)
+
+	respBytes, err := proto.Marshal(respContent)
+	if err != nil {
+		s.writeError(ctx, resp, wrapInternal(err, "failed to marshal proto response"))
+		return
+	}
+
+	ctx = ctxsetters.WithStatusCode(ctx, http.StatusOK)
+	resp.Header().Set("Content-Type", "application/protobuf")
+	resp.Header().Set("Content-Length", strconv.Itoa(len(respBytes)))
+	resp.WriteHeader(http.StatusOK)
+	if n, err := resp.Write(respBytes); err != nil {
+		msg := fmt.Sprintf("failed to write response, %d of %d bytes written: %s", n, len(respBytes), err.Error())
+		twerr := twirp.NewError(twirp.Unknown, msg)
+		ctx = callError(ctx, s.hooks, twerr)
+	}
+	callResponseSent(ctx, s.hooks)
+}
+
 func (s *categoryAPIServer) ServiceDescriptor() ([]byte, int) {
 	return twirpFileDescriptor0, 0
 }
@@ -1924,28 +2203,33 @@ func callClientError(ctx context.Context, h *twirp.ClientHooks, err twirp.Error)
 }
 
 var twirpFileDescriptor0 = []byte{
-	// 362 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x93, 0xcf, 0x4a, 0xc3, 0x40,
-	0x10, 0xc6, 0x69, 0x2c, 0x55, 0x27, 0x50, 0x70, 0xa5, 0x1a, 0x62, 0x29, 0x25, 0x88, 0x7f, 0x0e,
-	0x26, 0x52, 0xef, 0x82, 0xb6, 0x22, 0xb9, 0x49, 0x8b, 0x82, 0x5e, 0x64, 0x9b, 0x4c, 0x43, 0x30,
-	0x6d, 0xd6, 0xdd, 0x8d, 0xd2, 0x47, 0xf1, 0x09, 0x7d, 0x0d, 0x49, 0xd2, 0x48, 0x93, 0xac, 0x14,
-	0xbc, 0x6d, 0x76, 0xbe, 0xf9, 0xcd, 0x4c, 0xbe, 0x59, 0xe8, 0x71, 0xe6, 0x39, 0x1e, 0x95, 0x18,
-	0xc4, 0x7c, 0x79, 0x41, 0x59, 0xe8, 0x08, 0xe4, 0x1f, 0xa1, 0x87, 0x36, 0xe3, 0xb1, 0x8c, 0x09,
-	0x79, 0xa3, 0x73, 0x96, 0x08, 0xbb, 0x90, 0x50, 0x16, 0x9a, 0xbd, 0x20, 0x8e, 0x83, 0x08, 0x9d,
-	0x4c, 0x31, 0x4d, 0x66, 0xce, 0x27, 0xa7, 0x8c, 0x21, 0x17, 0x79, 0x8e, 0x79, 0x54, 0x8d, 0xe3,
-	0x9c, 0xc9, 0x65, 0x1e, 0xb4, 0x8e, 0x81, 0xdc, 0xa3, 0x1c, 0xae, 0x70, 0x63, 0x7c, 0x4f, 0x50,
-	0x48, 0xd2, 0x06, 0xcd, 0x1d, 0x19, 0x8d, 0x7e, 0xe3, 0x6c, 0x77, 0xac, 0xb9, 0x23, 0x6b, 0x06,
-	0x9d, 0x21, 0x47, 0x2a, 0xb1, 0x2a, 0x3c, 0x84, 0xed, 0x44, 0x20, 0x7f, 0x0d, 0xfd, 0x95, 0xba,
-	0x95, 0x7e, 0xba, 0x3e, 0x21, 0xd0, 0x5c, 0xd0, 0x39, 0x1a, 0x5a, 0x76, 0x9b, 0x9d, 0x49, 0x1f,
-	0x74, 0x1f, 0x85, 0xc7, 0x43, 0x26, 0xc3, 0x78, 0x61, 0x6c, 0x65, 0xa1, 0xf5, 0x2b, 0xeb, 0xab,
-	0x01, 0x9d, 0x47, 0xe6, 0x2b, 0x0a, 0x55, 0x3a, 0x22, 0x97, 0x6b, 0x7c, 0x7d, 0xd0, 0xb5, 0xf3,
-	0x19, 0xed, 0x62, 0x46, 0x7b, 0x22, 0x79, 0xb8, 0x08, 0x9e, 0x68, 0x94, 0xe0, 0xaa, 0xfa, 0x75,
-	0xbd, 0xfa, 0xa6, 0xc4, 0x52, 0x6f, 0xa7, 0xd0, 0x19, 0x61, 0x84, 0x1b, 0x5b, 0xb3, 0x7c, 0xd8,
-	0x29, 0x24, 0xb5, 0xb6, 0xff, 0xf5, 0x5b, 0xd2, 0x2c, 0x11, 0x25, 0x81, 0xd1, 0xcc, 0xb3, 0xd2,
-	0xf3, 0xe0, 0x5b, 0x03, 0xbd, 0x28, 0x73, 0xf3, 0xe0, 0x92, 0x09, 0xe8, 0x6b, 0x46, 0x92, 0x13,
-	0xbb, 0xbe, 0x29, 0x76, 0xdd, 0x69, 0xb3, 0xab, 0xd2, 0xfd, 0x52, 0x9e, 0xa1, 0x5d, 0xf6, 0x9d,
-	0x9c, 0x2b, 0xf5, 0xaa, 0xdd, 0xd8, 0x80, 0x9e, 0x40, 0xbb, 0xec, 0xb4, 0x1a, 0xad, 0xdc, 0x06,
-	0xf3, 0xa0, 0x66, 0xdb, 0x5d, 0xba, 0xd3, 0x29, 0xb4, 0xec, 0x91, 0x1a, 0xaa, 0xf4, 0xf1, 0x2f,
-	0xe8, 0xed, 0xfe, 0xcb, 0x9e, 0x53, 0x7d, 0x96, 0xd3, 0x56, 0x26, 0xba, 0xfa, 0x09, 0x00, 0x00,
-	0xff, 0xff, 0x61, 0x49, 0x78, 0x04, 0xb1, 0x03, 0x00, 0x00,
+	// 434 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x94, 0xdf, 0x8a, 0xd3, 0x40,
+	0x14, 0xc6, 0x49, 0xb3, 0xac, 0xee, 0x09, 0x14, 0x1d, 0xa9, 0xc6, 0x28, 0x4b, 0x09, 0xa2, 0xeb,
+	0x45, 0x13, 0x59, 0x6f, 0x45, 0x70, 0xb7, 0x52, 0x72, 0x27, 0x2d, 0x0a, 0xf6, 0x46, 0xa6, 0xc9,
+	0x69, 0x1c, 0x4c, 0x93, 0x71, 0x66, 0xa2, 0xf4, 0x51, 0x7c, 0x37, 0x1f, 0x46, 0xf2, 0xaf, 0xe4,
+	0xcf, 0xd4, 0x8a, 0x77, 0xd3, 0x33, 0xdf, 0xf9, 0xce, 0x37, 0xd3, 0xdf, 0x04, 0x2e, 0x05, 0x0f,
+	0xfd, 0x90, 0x2a, 0x8c, 0x33, 0xb1, 0x9f, 0x51, 0xce, 0x7c, 0x89, 0xe2, 0x07, 0x0b, 0xd1, 0xe3,
+	0x22, 0x53, 0x19, 0x21, 0xdf, 0xe8, 0x8e, 0xe7, 0xd2, 0x6b, 0x24, 0x94, 0x33, 0xe7, 0x32, 0xce,
+	0xb2, 0x38, 0x41, 0xbf, 0x54, 0x6c, 0xf2, 0xad, 0xff, 0x53, 0x50, 0xce, 0x51, 0xc8, 0xaa, 0xc7,
+	0x79, 0xd2, 0xdf, 0xc7, 0x1d, 0x57, 0xfb, 0x6a, 0xd3, 0x7d, 0x06, 0x64, 0x81, 0xea, 0xb6, 0xb6,
+	0x5b, 0xe2, 0xf7, 0x1c, 0xa5, 0x22, 0x63, 0x18, 0x05, 0x73, 0xdb, 0x98, 0x1a, 0x57, 0x17, 0xcb,
+	0x51, 0x30, 0x77, 0xb7, 0x30, 0xb9, 0x15, 0x48, 0x15, 0xf6, 0x85, 0x8f, 0xe0, 0x4e, 0x2e, 0x51,
+	0x7c, 0x61, 0x51, 0xad, 0x3e, 0x2f, 0x7e, 0x06, 0x11, 0x21, 0x70, 0x96, 0xd2, 0x1d, 0xda, 0xa3,
+	0xb2, 0x5a, 0xae, 0xc9, 0x14, 0xac, 0x08, 0x65, 0x28, 0x18, 0x57, 0x2c, 0x4b, 0x6d, 0xb3, 0xdc,
+	0x6a, 0x97, 0xdc, 0x5f, 0x06, 0x4c, 0x3e, 0xf2, 0x48, 0x33, 0xa8, 0x97, 0x88, 0xbc, 0x6a, 0xf9,
+	0x5b, 0xd7, 0x4f, 0xbd, 0xea, 0x8c, 0x5e, 0x73, 0x46, 0x6f, 0xa5, 0x04, 0x4b, 0xe3, 0x4f, 0x34,
+	0xc9, 0xb1, 0x9e, 0xfe, 0x76, 0x38, 0xfd, 0x54, 0x63, 0x27, 0xdb, 0x0b, 0x98, 0xcc, 0x31, 0xc1,
+	0x93, 0xd1, 0xdc, 0x19, 0x3c, 0x5e, 0xa0, 0xba, 0xa1, 0x2a, 0xfc, 0x5a, 0x4b, 0x19, 0xca, 0x46,
+	0x7c, 0x0f, 0x4c, 0x16, 0x49, 0xdb, 0x98, 0x9a, 0x57, 0x17, 0xcb, 0x62, 0xe9, 0xae, 0xc1, 0xd1,
+	0xc9, 0x25, 0xcf, 0x52, 0x89, 0xe4, 0x0d, 0x40, 0x78, 0xa8, 0x96, 0x6d, 0x45, 0xe8, 0x21, 0x05,
+	0xde, 0x21, 0x55, 0x4b, 0xef, 0x46, 0x70, 0xb7, 0xa9, 0x0f, 0x6e, 0xf0, 0xbf, 0xfe, 0xa1, 0xa2,
+	0x4b, 0x26, 0x79, 0x6c, 0x9f, 0x55, 0x5d, 0xc5, 0xfa, 0xfa, 0xb7, 0x09, 0x56, 0x33, 0xe6, 0xdd,
+	0x87, 0x80, 0xac, 0xc0, 0x6a, 0x31, 0x45, 0x9e, 0xeb, 0xe2, 0x0e, 0xa1, 0x73, 0xfe, 0x7a, 0x2c,
+	0xf2, 0x19, 0xc6, 0x5d, 0x04, 0xc9, 0x4b, 0xad, 0x5e, 0x87, 0xe9, 0x09, 0xeb, 0x15, 0x8c, 0xbb,
+	0xd0, 0xe9, 0xad, 0xb5, 0x60, 0x3a, 0x0f, 0x07, 0x04, 0xbd, 0x2f, 0x9e, 0x57, 0x61, 0xda, 0xc5,
+	0x45, 0x6f, 0xaa, 0x45, 0xea, 0xa8, 0xa9, 0x2c, 0x5f, 0x6b, 0x8f, 0x15, 0x32, 0x3b, 0x72, 0xc1,
+	0x7a, 0x04, 0x1d, 0xef, 0x5f, 0xe5, 0x15, 0x82, 0x37, 0x0f, 0xd6, 0xf7, 0xfd, 0xfe, 0x67, 0x69,
+	0x73, 0x5e, 0x26, 0x7b, 0xfd, 0x27, 0x00, 0x00, 0xff, 0xff, 0xab, 0xc7, 0x2c, 0xc0, 0xb1, 0x04,
+	0x00, 0x00,
 }
