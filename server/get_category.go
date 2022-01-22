@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	api "github.com/kamp-us/category-api/rpc/category-api"
+	"github.com/kamp-us/category-api/server/helper"
 	"github.com/twitchtv/twirp"
 )
 
@@ -12,17 +13,12 @@ func (s *CategoryAPIServer) GetCategory(ctx context.Context, req *api.GetCategor
 		return nil, err
 	}
 
-	Category, err := s.backend.GetCategory(ctx, req.ID)
+	category, err := s.backend.GetCategory(ctx, req.ID)
 	if err != nil {
 		return nil, twirp.InternalErrorWith(err)
 	}
 
-	return &api.Category{
-		ID:          Category.ID.String(),
-		Name:        Category.Name,
-		Description: Category.Description,
-		Slug:        Category.Slug,
-	}, nil
+	return helper.ConvertToCategoryModel(category), nil
 
 }
 
