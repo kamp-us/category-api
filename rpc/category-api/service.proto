@@ -12,6 +12,7 @@ service CategoryAPI {
   rpc UpdateCategory(UpdateCategoryRequest) returns (google.protobuf.Empty);
   rpc DeleteCategory(DeleteCategoryRequest) returns (google.protobuf.Empty);
   rpc GetBatchCategories(GetBatchCategoriesRequest) returns (GetBatchCategoriesResponse);
+  rpc GetCategoryBySlug(GetCategoryBySlugRequest) returns (GetCategoryBySlugResponse);
 }
 
 message GetCategoryRequest {
@@ -40,6 +41,14 @@ message GetBatchCategoriesRequest {
 
 message GetBatchCategoriesResponse {
   repeated Category categories = 1;
+}
+
+message GetCategoryBySlugRequest {
+  string slug = 1;
+}
+
+message GetCategoryBySlugResponse {
+  Category category = 1;
 }
 
 message Category {
